@@ -1,0 +1,17 @@
+Write a python script that scrapes https://daff.co.il/ homepage
+
+It creates:
+(1) a list of all posts
+(2) a list of all authors 
+
+The list of posts should contain a reference to the author (author_id) 
+It moves to the next page each time it’s done (with a limit of 10 pages)
+
+# Bonus 1:
+Write an api call to a fake server that sends a json file with the post and author details
+
+# Bonus 2:
+Write an SQL query that extracts all posts joined with their authors from the DB
+
+# Bonus 3:
+Write an SQL query that extracts the most recent post for each author
