@@ -6,7 +6,7 @@ import regex as re
 
 URL = 'https://daff.co.il/'
 
-def create_connection(db_file):
+def create_connection(db_file: str):
     """ create a database connection to a SQLite database """
     conn = None
     try:
