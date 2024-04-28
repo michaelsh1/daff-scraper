@@ -13,22 +13,24 @@ def create_connection(db_file):
 conn = create_connection('daff.db')
 db_edit = conn.cursor()
 
-def create_post_json(conn, link):
-    db_edit = conn.cursor()
+print(db_edit.execute("SELECT name FROM authors WHERE author_id = ?", (10,)).fetchone()[0])
 
-    # get post writer, url and header
-    post_title = db_edit.execute("SELECT title FROM posts WHERE link = ?", (link,)).fetchone()[0]
-    post_author = db_edit.execute("SELECT name FROM authors WHERE author_id = ?", (db_edit.execute("SELECT author_id FROM posts WHERE link = ?", (link,)).fetchone()[0],)).fetchone()[0]
+# def create_post_json(conn, link):
+#     db_edit = conn.cursor()
 
-    return {'link': link, 'title': post_title, 'author': post_author}
+#     # get post writer, url and header
+#     post_title = db_edit.execute("SELECT title FROM posts WHERE link = ?", (link,)).fetchone()[0]
+#     post_author = db_edit.execute("SELECT name FROM authors WHERE author_id = ?", (db_edit.execute("SELECT author_id FROM posts WHERE link = ?", (link,)).fetchone()[0],)).fetchone()[0]
 
-print(create_post_json(conn, db_edit.execute("SELECT link FROM posts WHERE author_id = ?", (0,)).fetchone()[0]))
+#     return {'link': link, 'title': post_title, 'author': post_author}
 
-def send_json_to_server(server_address, json):
-    r = requests.post(server_address, json=json)
-    if r.status_code == 200:
-        print("success")
-    else:
-        print("failed")
+# print(create_post_json(conn, db_edit.execute("SELECT link FROM posts WHERE author_id = ?", (0,)).fetchone()[0]))
+
+# def send_json_to_server(server_address, json):
+#     r = requests.post(server_address, json=json)
+#     if r.status_code == 200:
+#         print("success")
+#     else:
+#         print("failed")
     
     
