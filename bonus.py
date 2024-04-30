@@ -19,10 +19,20 @@ def create_post_json(conn, post_id):
     db_edit = conn.cursor()
 
     # get post writer, url and header
-    post_title = db_edit.execute("SELECT title FROM posts WHERE post_id = ?", (post_id,)).fetchone()[0]
-    post_author = db_edit.execute("SELECT name FROM authors WHERE author_id = ?", (db_edit.execute("SELECT author_id FROM posts WHERE post_id = ?", (post_id,)).fetchone()[0],)).fetchone()[0]
-    link = db_edit.execute("SELECT link FROM posts WHERE post_id = ?", (post_id,)).fetchone()[0]
-    return {'link': link, 'title': post_title, 'author': post_author}
+    data = db_edit.execute('''
+        SELECT posts.title, posts.link, a.n
+        FROM posts, (
+            SELECT authors.name n
+            FROM authors
+            where author_id = (
+                SELECT posts.author_id
+                FROM posts
+                WHERE posts.post_id = 0
+                )
+            ) a
+        WHERE post_id = 0
+        ''').fetchone()
+    return {'title': data[0], 'link': data[1], 'author': data[2]}
 
 def send_json_to_server(server_address, json):
     r = requests.post(server_address, json=json)
@@ -38,31 +48,37 @@ random_post_url = r"https://daff.co.il/p/44-%D7%9B%D7%9C%D7%91-%D7%94%D7%9C%D7%9
 # Write an SQL query that extracts all posts joined with their authors from the DB
 def posts_joined_by_authors(conn):
     db_edit = conn.cursor()
-    return db_edit.execute('''SELECT Authors.name, Posts.link, Posts.title
-                            FROM Authors
-                            INNER JOIN Posts
-                            ON Authors.author_id = Posts.author_id''').fetchall()
+    return db_edit.execute('''
+        SELECT Authors.name, Posts.link, Posts.title
+        FROM Authors
+        INNER JOIN Posts
+        ON Authors.author_id = Posts.author_id
+        ''').fetchall()
 
 # Bonus 3:
 # Write an SQL query that extracts the most recent post for each author
 def most_recent_post_for_each_author(conn):
     db_edit = conn.cursor()
-    return db_edit.execute('''SELECT Authors.name, Posts.link
-                            FROM Authors
-                            INNER JOIN Posts
-                            ON Authors.author_id = Posts.author_id
-                            ORDER BY Posts.post_id''').fetchall()
+    return db_edit.execute('''
+        SELECT posts.link, authors.name
+        FROM posts
+        LEFT JOIN authors
+        ON authors.author_id = posts.author_id
+        GROUP BY posts.author_id
+        ''').fetchall()
 
 def main():
     conn = create_connection('daff.db')
-    json = create_post_json(conn, 100)
+    json = create_post_json(conn, 0)
+    print(json)
     send_json_to_server("http://httpbin.org/post", json)
 
     print("#############\n\nBonus2:\n\n#############")
+    pprint.pprint(posts_joined_by_authors(conn))
+    
+    print("#############\n\nBonus3:\n\n#############")
     pprint.pprint(most_recent_post_for_each_author(conn))
 
-    print("#############\n\nBonus3:\n\n#############")
-    # pprint.pprint(posts_joined_by_authors(conn))
 
 
 if __name__ == '__main__':
