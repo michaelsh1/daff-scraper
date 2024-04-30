@@ -17,7 +17,8 @@ def create_connection(db_file: str):
 
 def how_many_pages(html):
     return 10
-    return int(re.search(">(\d+)</a></span> <span class=\"page next", html).group(1))
+    # another return in case you want to scrape the entire site.
+    # return int(re.search(">(\d+)</a></span> <span class=\"page next", html).group(1))
 
 def create_tables(conn):
     db_edit = conn.cursor()
